@@ -67,10 +67,13 @@
 				</div>
 
 				<div class="container-contact100-form-btn">
-					<div class="wrap-contact100-form-btn">
+					<div class="wrap-contact100-form-btn" style="display: inline-flex;">
 						<div class="contact100-form-bgbtn"></div>
 						<button class="contact100-form-btn" type="button", id="btn_submit", onclick="POST_image()">
 							Submit
+						</button>
+						<button class="contact100-form-btn" style="display: none;" type="button", id="btn_open", onclick="OPEN_image()">
+							Open Image
 						</button>
 					</div>
 				</div>
@@ -162,7 +165,7 @@
 	  })
 	  .then(function (response) {
 		  if (response.status != 200 && response.status != 202) {
-			  console.log(`Response status was not 20: ${response.status}`)
+			  console.log(`Response status was not 200: ${response.status}`)
 			  return;
 		  }
 		  else {
@@ -180,10 +183,64 @@
 			  var text_area = document.getElementById("text_area")
 			  text_area.value += data["tex"]
 			  console.log(data)
-			  enableTextArea()
+			  // enableTextArea()
+			  // displaying hidden button with id "btn_open"
+			  document.getElementById("btn_open").style.display = "block"
+			  document.getElementById("btn_submit").style.display = "none"
 		  })
 	  })
   }
+
+  function OPEN_image() {
+	  console.log('Opening Image..')
+	  
+	  // unambiguous code creating image from latex code twice 
+	  var latex = document.getElementById("text_area").value
+	  
+	  var data = {
+		  Latex_string: latex
+	  }
+
+	  fetch(`${window.origin}/process`, {
+		  method: 'POST',
+		  credentials: 'include',
+		  body: JSON.stringify(data),
+		  cache: 'no-cache',
+		  headers: new Headers({
+			  "content-type": "application/json"
+		  })
+	  }).then(function (response) {
+		if (response.status != 200) {
+			console.log(`Response status was not 200: ${response.status}`)
+			return ;
+		}
+		else {
+			//newly added
+	  		const tab = window.open('about:blank');
+			fetch(`${window.origin}/process`)
+			.then(response => response.text()) 
+			.then(text => {
+				alert(text)
+				// try {
+				// 	const data = JSON.parse(text);
+				// 	alert("JSON " + data);
+				// } catch(err) {
+				// 	alert(err)
+				// }
+				tab.location = 'http://127.0.0.1:5000/next_page';
+				tab.focus();
+				window.top.close();
+			}) 
+			.catch(err => {
+				// close the empty window
+				tab.close();
+			})
+		}
+	  })
+
+	  
+  }
+
 </script>
 
 </body>
