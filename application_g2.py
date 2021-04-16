@@ -27,6 +27,7 @@ my_pass = os.environ.get('Pass_key')
 
 # texworks filename
 tex_file_name = "temp_tex_file"
+tex_file_name_2 = "temp_tex_file_2"
 directory = "sake/"
 
 # universal string to carry tex output from model.
@@ -131,6 +132,34 @@ def delete_file(filename):
 def clean(pdf_name, txt_name):
     delete_file(directory+pdf_name)
     delete_file(txt_name)
+
+@app.route('/process', methods=['POST', 'GET'])
+def open_image():
+    
+    if request.method == 'POST':
+        print('using post block')
+        req = request.get_json()
+        # storing request json data 
+        Latex_string = req['Latex_string']
+        with open('{}.txt'.format(tex_file_name_2), "w") as f:
+            f.write(Latex_string)
+
+        # create tex_2_pdf object
+        tex_to_pdf = tex_2_pdf(file_name=tex_file_name_2)
+        name = tex_to_pdf.get_pdf_name()
+        print(name)
+
+        res = make_response(jsonify({"message" : "JSON received"}), 200)
+        # return redirect(url_for('next_page'))
+        return res
+    else:
+        print('using get block')
+        return redirect(url_for('next_page'))
+
+@app.route('/next_page')
+def next_page():
+    print("Lumos")
+    return render_template('Image_show.html')
 
 if __name__ == "__main__":
     app.run(debug = True)
